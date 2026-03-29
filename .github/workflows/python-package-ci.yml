@@ -1,0 +1,43 @@
+name: Python Package CI
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        required: false
+        type: string
+        default: "3.13"
+      dependency_install_command:
+        required: true
+        type: string
+      mypy_target:
+        required: true
+        type: string
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install project dependencies
+        run: ${{ inputs.dependency_install_command }}
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Type check
+        run: uv run mypy ${{ inputs.mypy_target }}
+
+      - name: Run unit tests
+        run: uv run pytest
