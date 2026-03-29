@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: no-merge-conflicts
+        name: No merge conflict markers
+        entry: bash -lc 'for f in "$@"; do if [ -f "$f" ] && rg -n "^(<<<<<<<|=======|>>>>>>>)" "$f"; then exit 1; fi; done' --
+        language: system
+        pass_filenames: true
