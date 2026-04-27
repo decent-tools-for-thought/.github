@@ -29,20 +29,25 @@ jobs:
         with:
           python-version: ${{ inputs.python_version }}
 
+      - name: Install build tooling
+        run: python -m pip install --upgrade pip build
+
+      - name: Install test dependencies
+        if: ${{ inputs.run_tests }}
+        run: python -m pip install . pytest
+
       - name: Run unit tests
         if: ${{ inputs.run_tests }}
         run: python -m pytest
 
       - name: Build Python distributions
-        run: |
-          python -m pip install --upgrade pip build
-          python -m build
+        run: python -m build
 
       - name: Verify wheel install
         run: |
           python -m venv .venv-wheel
           .venv-wheel/bin/python -m pip install --upgrade pip
-          .venv-wheel/bin/python -m pip install --no-deps dist/*.whl
+          .venv-wheel/bin/python -m pip install dist/*.whl
           .venv-wheel/bin/python -c "import ${{ inputs.package_import_name }}"
           .venv-wheel/bin/${{ inputs.cli_command }} --help >/dev/null
 
